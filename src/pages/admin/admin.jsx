@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Layout, Breadcrumb } from 'antd'
 import LeftNav from './../../components/left-nav/LeftNav';
 import Header from '../../components/header/Header'
-import Introduction from './../../components/collection/introduction/Introduction';
+import Introduction from '../../components/introduction/Introduction';
 import { Switch, Redirect, Route } from 'react-router-dom';
 import Home from './../../components/home/Home';
 import LabelDataList from './../../components/collection/label-data-list/LabelDataList';
@@ -40,6 +40,8 @@ class Admin extends Component {
               <Route path='/collection/data-collection' component={DataCollection}/>
               <Route path='/collection/label-data-list' component={LabelDataList}/>
               <Route path='/assist' component={Assist}/>
+              <Route path='/introduction' component={Introduction}/>
+
 
             </Switch>
           </Content>
