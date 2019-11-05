@@ -27,7 +27,7 @@ class Admin extends Component {
   render() {
     return (
       <Layout style={{ minHeight: '100vh' }}>
-        <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse} style={{}}>
+        <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse} style={{height: '100vh'}} className="sider">
           <LeftNav></LeftNav>
         </Sider>
         <Layout>

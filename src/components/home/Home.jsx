@@ -5,7 +5,9 @@ import { Card } from 'antd'
 class Home extends Component {
   constructor(props) {
     super(props);
-    this.state = {  }
+    this.state = {  
+      labelData: [1,2,3,4]
+    }
   }
   getOption = (data) => {
     return {
