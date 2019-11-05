@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import './header.less'
 import { formateDate } from '../../utils/dateUtils'
+import { Icon, Modal, Button, Table } from 'antd'
 
 import menuList from './../../config/menuConfig';
 
@@ -12,6 +13,7 @@ class Header extends Component {
       currentTime: formateDate(Date.now()), // 当前时间字符串
       dayPictureUrl: '', // 天气图片url
       weather: '', // 天气的文本
+      ModalVisiable: false,
     }
   }
 
@@ -55,9 +57,9 @@ class Header extends Component {
    * 退出登录
    */
   logout = () => {
-    // todo
+    this.props.history.replace('/login')
   }
-
+  
   componentDidMount() {
     this.getTime()
     this.getWeather()
@@ -71,27 +73,70 @@ class Header extends Component {
     clearInterval(this.intervalId)
   }
 
+  handleCancel = () => {
+    this.setState({
+      ModalVisiable: false
+    })
+  }
+
+  showDialog = () => {
+    this.setState({
+      ModalVisiable: true
+    })
+  }
 
   render() {
     const { currentTime, dayPictureUrl, weather } = this.state
     const title = this.getTitle()
+    const columns = [
+      {
+        title: '系统名称',
+        dataIndex: 'name',
+      },
+      {
+        title: '版本号',
+        dataIndex: 'version',
+      },
+      {
+        title: '更新时间',
+        dataIndex: 'updateTime',
+      }
+
+    ]
+    const data = [
+      {
+        key: '1',
+        name: '失眠症辅助诊疗平台',
+        version: '1.1.0',
+        updateTime: '2019-11-15',
+      }
+    ]
     return (
       <div className="header">
-        <div className="header-top">
-          <span>欢迎，username</span>
+        <span className='page-title'>{title}</span>
+        <div className="header-right">
+          <span className='currentTime'>{currentTime}</span>
+          <Icon type="global" />
+          <Icon type="question-circle" onClick={this.showDialog} />
           <span className="logout" onClick={this.logout}>退出</span>
         </div>
-        <div className="header-bottom">
-          <div className="header-bottom-left">{title}</div>
-          <div className="header-bottom-right">
-            <span>{currentTime}</span>
-            <img src={dayPictureUrl} alt="weather"/>
-            <span>{weather}</span>
+        <Modal
+          title="关于"
+          visible={this.state.ModalVisiable}
+          onCancel={this.handleCancel}
+          footer={[
+            <Button onClick={this.handleCancel}>关闭</Button>
+          ]}
+        >
+          <div className="about-content">
+            <h3 className='table-title'>失眠症辅助诊疗平台</h3>
+            <Table columns={columns} dataSource={data} bordered pagination={false} />
           </div>
-        </div>
+        </Modal>
+
       </div>
     );
   }
 }
 
-export default withRouter(Header);
+export default withRouter(Header);  
