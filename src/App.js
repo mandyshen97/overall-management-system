@@ -20,7 +20,6 @@ class App extends Component {
           <Route path='/login' component={Login}></Route>
           <Route path='/' component={Admin}></Route>
           <Route path='/test' component={Test}></Route>
-
         </Switch>
       </BrowserRouter>
     )

@@ -11,7 +11,7 @@ const menuList = [
   },
   {
     title: '患者信息管理',
-    key: '/user',
+    key: '/informationManagement',
     icon: 'user'
   },
   {
