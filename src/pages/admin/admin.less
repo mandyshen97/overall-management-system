@@ -1,11 +1,27 @@
+body{
+  position: fixed
+}
 .ant-layout-sider-children{
   position: fixed;
 }
 .ant-layout{
-  overflow: hidden;
   width: 100%;
   position: relative;
 }
 .ant-layout-content{
-  padding-top: 90px;
+  position: absolute;
+  height: calc(100% - 30px);
+  width: 100%;
+  padding: 104px 24px 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  margin-bottom: 30px;
+  .main-content{
+    overflow: auto;
+    height: 100%;
+    border: 1px solid #d8dcde;
+    border-radius: 3px;
+    padding: 24px;
+    background: #fff;
+  }
 }

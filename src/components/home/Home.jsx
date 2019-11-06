@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactEcharts from 'echarts-for-react'
-
 import { Card } from 'antd'
 class Home extends Component {
   constructor(props) {
@@ -45,7 +44,7 @@ class Home extends Component {
   }
   render() { 
     return (  
-      <div>
+      <div className='main-content'>
         <Card title='柱状图一'>
           <ReactEcharts option={this.getOption(this.state.labelData)}></ReactEcharts>
         </Card>

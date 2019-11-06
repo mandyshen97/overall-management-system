@@ -9,6 +9,7 @@ import LabelDataList from './../../components/collection/label-data-list/LabelDa
 import DataCollection from './../../components/collection/data-collection/DataCollection';
 import Assist from './../../components/assist/Assist';
 import './admin.less'
+import MyBreadcrumb from './../../components/breadcrumb/MyBreadcrumb';
 
 const { Footer, Sider, Content } = Layout
 class Admin extends Component {
@@ -26,13 +27,14 @@ class Admin extends Component {
 
   render() {
     return (
-      <Layout style={{ minHeight: '100vh' }}>
+      <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
         <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse} style={{height: '100vh'}} className="sider">
           <LeftNav></LeftNav>
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }} />
-          <Content style={{ margin: '0 16px' }}>
+          <MyBreadcrumb></MyBreadcrumb>
+          <Content>
             <Switch>
               <Redirect from='/' exact to='/home'/>
               <Route path='/home' component={Home}/>
@@ -41,13 +43,8 @@ class Admin extends Component {
               <Route path='/collection/label-data-list' component={LabelDataList}/>
               <Route path='/assist' component={Assist}/>
               <Route path='/introduction' component={Introduction}/>
-
-
             </Switch>
           </Content>
-          <Footer style={{ textAlign: 'center', color: '#cccccc' }}>
-            推荐使用谷歌浏览器，可以获得更佳页面操作体验
-          </Footer>
         </Layout>
       </Layout>
     )

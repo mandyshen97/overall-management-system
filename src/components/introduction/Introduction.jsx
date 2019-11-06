@@ -28,7 +28,7 @@ class Introduction extends Component {
 
   render() {
     return (
-      <div className="introduction-main-container">
+      <div className="main-content">
         <div className="text">
           <Card className="text-left">
             <h2>数据采集系统介绍</h2>
