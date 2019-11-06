@@ -9,7 +9,8 @@ import LabelDataList from './../../components/collection/label-data-list/LabelDa
 import DataCollection from './../../components/collection/data-collection/DataCollection';
 import Assist from './../../components/assist/Assist';
 import './admin.less'
-import InformationManagement from './../../components/management/InformationManagement';
+import InformationManagement from '../../components/userManagement/UserInformationManagement';
+import LabelInformationManagement from './../../components/labelManagement/LabelInformationManagement';
 
 const { Footer, Sider, Content } = Layout
 class Admin extends Component {
@@ -42,6 +43,7 @@ class Admin extends Component {
               <Route path='/home'  component={Home} />
               <Route path='/informationManagement'  component={InformationManagement} />
               <Route path='/introduction' component={Introduction} />
+              <Route path='/labelInformationManagement' component={LabelInformationManagement} />
               <Route path='/assist' component={Assist} />
             </Switch>
           </Content>

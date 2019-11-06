@@ -16,7 +16,7 @@ const menuList = [
   },
   {
     title: '标注信息管理',
-    key: '/collection',
+    key: '/labelInformationManagement',
     icon: 'form'
   },
   // {
