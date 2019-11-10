@@ -1,7 +1,9 @@
 import React, { Component } from "react";
-import { Form, Input, Button, Modal, Row, Divider, Select, Title } from "antd";
+import { Form, Input, Button, Modal, Row,Typography, Divider, Select } from "antd";
 
 const { Option } = Select;
+const { Title } = Typography;
+
 class ClinicalForm extends Component {
   constructor(props) {
     super(props);
@@ -96,9 +98,9 @@ class ClinicalForm extends Component {
     ];
     return (
       <Form {...formItemLayout} onSubmit={this.handleClinicalSubmit}>
-        {/* <Row justify="start" type="flex">
+        <Row justify="start" type="flex">
           <Title level={4}>现病史</Title>
-        </Row> */}
+        </Row>
         <Divider />
         <Form.Item label="症状持续时间（月）">
           {getFieldDecorator("symptomTime", {
@@ -110,9 +112,9 @@ class ClinicalForm extends Component {
             initialValue: clinicalInfo.presentIllnessHistory
           })(<Input />)}
         </Form.Item>
-        {/* <Row justify="start" type="flex">
+        <Row justify="start" type="flex">
           <Title level={4}>主诉/治疗史</Title>
-        </Row> */}
+        </Row>
         <Divider />
         <Form.Item label="主诉">
           {getFieldDecorator("chiefComplaint", {
@@ -132,10 +134,10 @@ class ClinicalForm extends Component {
             </Select>
           )}
         </Form.Item>
-        {/* <Row justify="start" type="flex">
+        <Row justify="start" type="flex">
           <Title level={4}>既往史/个人史/家族史</Title>
         </Row>
-        <Divider /> */}
+        <Divider />
         <Form.Item label="既往史">
           {getFieldDecorator("pastHistory", {
             initialValue: clinicalInfo.pastHistory

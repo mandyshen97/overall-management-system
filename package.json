@@ -12,6 +12,7 @@
     "echarts-for-react": "^2.0.15-beta.1",
     "less": "^3.10.3",
     "less-loader": "^5.0.0",
+    "moment": "^2.24.0",
     "react": "^16.9.0",
     "react-app-polyfill": "^1.0.4",
     "react-app-rewired": "^2.1.3",

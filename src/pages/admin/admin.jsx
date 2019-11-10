@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Layout, Breadcrumb } from 'antd'
+import menuList from '../../config/menuConfig'
 import LeftNav from './../../components/left-nav/LeftNav';
 import Header from '../../components/header/Header'
 import Introduction from '../../components/introduction/Introduction';
@@ -26,7 +27,28 @@ class Admin extends Component {
     this.setState({ collapsed });
   };
 
+  getTitle = () => {
+    // 得到当前请求路径
+    const path = this.props.location.pathname
+    let title
+    menuList.forEach(item => {
+      // 如果当前item对象的key与path一样,item的title就是需要显示的title
+      if (item.key === path) {
+        title = item.title
+      } else if (item.children) {
+        // 如果当前item有子项，在所有子item中查找匹配的
+        const cItem = item.children.find(cItem => path.indexOf(cItem.key) === 0)
+        if (cItem) {
+          // 如果存在说明匹配成功
+          title = cItem.title
+        }
+      }
+    })
+    return title
+  }
+
   render() {
+    console.log(this.props)
     return (
       <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
         <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse} style={{ height: '100vh' }} className="sider">
@@ -35,7 +57,7 @@ class Admin extends Component {
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }} />
           <Breadcrumb className='my-breadcrumb'>
-            <Breadcrumb.Item>首页</Breadcrumb.Item>
+            <Breadcrumb.Item>{this.getTitle()}</Breadcrumb.Item>
           </Breadcrumb>
           <Content>
             <Switch>

@@ -15,7 +15,9 @@ import {
   DatePicker
 } from "antd";
 import PersonalForm from "./PersonalForm";
-import ClinicalForm from './ClinicalForm'
+import ClinicalForm from "./ClinicalForm";
+import MissionInfoForm from "./MissionInfoForm";
+import PatientsDescriptionForm from "./PatientsDescriptionForm";
 import "./user-information-management.less";
 import API from "../../api/api";
 
@@ -185,8 +187,8 @@ class InformationManagement extends Component {
       newPatientModalVisible: false, // 新建患者
       patientScaleModalVisible: false, // 患者量表信息展示
       clinicalModalVisible: false, // 患者临床信息填写
-      modalVisible4: false, // 患者基本信息展示
-      modalVisible5: false, // 患者任务基本信息填写
+      missionModalVisible: false, // 新建近红外信息
+      PatientsDescriptionModalVisible: false, //患者基本信息展示
       edit: false,
       currentRecordId: -1,
       currentUserName: "undefined",
@@ -231,23 +233,39 @@ class InformationManagement extends Component {
   };
 
   handleClick = (flag, record, msg) => {
-    console.log('click')
+    console.log(record);
     if (msg === "personalInfo") {
       this.setState({
         edit: true,
         newPatientModalVisible: flag,
-        currentRecordId: record.id,
+        currentRecordId: record.uniqueNumber.id,
         currentUserName: record.name
       });
     }
-    if(msg === "clinicalInfo") {
+    if (msg === "clinicalInfo") {
       this.setState({
-          edit: true,
-          clinicalModalVisible: flag,
-          currentUserName: record.name,
-          currentRecordId: record.id,
+        edit: true,
+        clinicalModalVisible: flag,
+        currentUserName: record.name,
+        currentRecordId: record.uniqueNumber.id
       });
-  }
+    }
+    if (msg === "missionBasicInfo") {
+      this.setState({
+        edit: true,
+        missionModalVisible: flag,
+        currentUserName: record.name,
+        currentRecordId: record.uniqueNumber.id
+      });
+    }
+    if (msg === "patientsDescription") {
+      this.setState({
+        edit: true,
+        PatientsDescriptionModalVisible: flag,
+        currentUserName: record.name,
+        currentRecordId: record.uniqueNumber.id
+      });
+    }
   };
 
   // 查询表单
@@ -314,17 +332,6 @@ class InformationManagement extends Component {
             </Select>
           )}
         </Form.Item>
-        {/* <Form.Item>
-          {getFieldDecorator("date", {})(
-            <DatePicker
-              style={{ width: 200 }}
-              placeholder="请选择日期"
-              onChange={(date, dateString) =>
-                this.handleDateSearch(date, dateString)
-              }
-            />
-          )}
-        </Form.Item> */}
         <Form.Item>
           <Button type="primary" htmlType="submit">
             查询
@@ -345,7 +352,7 @@ class InformationManagement extends Component {
     );
   };
 
-  显示弹框;
+  // 显示弹框;
   handleModalVisible = (flag, msg) => {
     if (msg === "personalInfo") {
       this.setState({
@@ -353,12 +360,24 @@ class InformationManagement extends Component {
         newPatientModalVisible: flag
       });
     }
-    if(msg === 'clinicalInfo') {
+    if (msg === "clinicalInfo") {
       this.setState({
-          edit: false,
-          clinicalModalVisible: flag,
+        edit: false,
+        clinicalModalVisible: flag
       });
-  }
+    }
+    if (msg === "missionBasicInfo") {
+      this.setState({
+        edit: false,
+        missionModalVisible: flag
+      });
+    }
+    if (msg === "patientsDescription") {
+      this.setState({
+        edit: false,
+        PatientsDescriptionModalVisible: flag
+      });
+    }
   };
 
   colums = [
@@ -418,16 +437,6 @@ class InformationManagement extends Component {
       dataIndex: "doctorId",
       width: "10%"
     },
-    // {
-    //   title: "测试时间",
-    //   dataIndex: "testTime",
-    //   width: "10%"
-    // },
-    // {
-    //   title: "任务类型",
-    //   dataIndex: "testType",
-    //   width: "10%"
-    // },
     {
       title: "患者信息展示",
       width: "10%",
@@ -437,7 +446,9 @@ class InformationManagement extends Component {
             <Row type="flex" justify="center">
               <Tooltip title="采集信息展示">
                 <div
-                  onClick={() => this.handleClick(true, record, "description")}
+                  onClick={() =>
+                    this.handleClick(true, record, "patientsDescription")
+                  }
                 >
                   <Icon type="book" />
                   <span
@@ -463,72 +474,75 @@ class InformationManagement extends Component {
         return (
           <Fragment>
             <Tooltip title="个人采集信息">
-              <Icon
-                type="edit"
-                style={{ justifyContent: "center" }}
-                onClick={() => this.handleClick(true, record, "personalInfo")}
-              />
               <span
-                style={{
-                  cursor: "pointer",
-                  marginLeft: "5px",
-                  lineHeight: "1"
-                }}
+                onClick={() => this.handleClick(true, record, "personalInfo")}
               >
-                个人
+                <Icon type="edit" style={{ justifyContent: "center" }} />
+                <span
+                  style={{
+                    cursor: "pointer",
+                    marginLeft: "5px",
+                    lineHeight: "1"
+                  }}
+                >
+                  个人
+                </span>
               </span>
             </Tooltip>
             <Divider type="vertical" />
             <Tooltip title="临床信息采集">
-              <Icon
-                type="codepen-circle"
-                style={{ justifyContent: "center" }}
-                onClick={() => this.handleClick(true, record, "clinicalInfo")}
-              />
               <span
-                style={{
-                  cursor: "pointer",
-                  marginLeft: "5px",
-                  lineHeight: "1"
-                }}
+                onClick={() => this.handleClick(true, record, "clinicalInfo")}
               >
-                临床
+                <Icon
+                  type="codepen-circle"
+                  style={{ justifyContent: "center" }}
+                />
+                <span
+                  style={{
+                    cursor: "pointer",
+                    marginLeft: "5px",
+                    lineHeight: "1"
+                  }}
+                >
+                  临床
+                </span>
               </span>
             </Tooltip>
             <Divider type="vertical" />
             <Tooltip title="查看量表信息">
-              <Icon
-                type="copy"
-                style={{ justifyContent: "center" }}
-                onClick={() => this.handleClick(true, record, "clinicalInfo")}
-              />
               <span
-                style={{
-                  cursor: "pointer",
-                  marginLeft: "5px",
-                  lineHeight: "1"
-                }}
+                onClick={() => this.handleClick(true, record, "clinicalInfo")}
               >
-                查看量表
+                <Icon type="copy" style={{ justifyContent: "center" }} />
+                <span
+                  style={{
+                    cursor: "pointer",
+                    marginLeft: "5px",
+                    lineHeight: "1"
+                  }}
+                >
+                  查看量表
+                </span>
               </span>
             </Tooltip>
             <Divider type="vertical" />
             <Tooltip title="新建近红外采集信息">
-              <Icon
-                type="arrow-right"
-                style={{ justifyContent: "center" }}
+              <span
                 onClick={() =>
                   this.handleClick(true, record, "missionBasicInfo")
                 }
-              />
-              <span
-                style={{
-                  cursor: "pointer",
-                  marginLeft: "5px",
-                  lineHeight: "1"
-                }}
               >
-                新建
+                <Icon type="arrow-right" style={{ justifyContent: "center" }} />
+                <span
+                  style={{
+                    cursor: "pointer",
+                    marginLeft: "5px",
+                    lineHeight: "1"
+                  }}
+                >
+                  新建
+                </span>
               </span>
             </Tooltip>
           </Fragment>
@@ -538,7 +552,7 @@ class InformationManagement extends Component {
   ];
 
   render() {
-    console.log(this.state.clinicalModalVisible);
+    console.log(this.state.PatientsDescriptionModalVisible);
     return (
       <div className="main-content">
         {this.renderSearch()}
@@ -556,6 +570,23 @@ class InformationManagement extends Component {
         {this.state.clinicalModalVisible && (
           <ClinicalForm
             modalVisible={this.state.clinicalModalVisible}
+            handleModalVisible={this.handleModalVisible}
+            currentRecordId={this.state.currentRecordId}
+            currentUserName={this.state.currentUserName}
+          />
+        )}
+        {/* 新建近红外采集信息 */}
+        {this.state.missionModalVisible && (
+          <MissionInfoForm
+            modalVisible={this.state.missionModalVisible}
+            handleModalVisible={this.handleModalVisible}
+            currentRecordId={this.state.currentRecordId}
+            currentUserName={this.state.currentUserName}
+          />
+        )}
+        {this.state.PatientsDescriptionModalVisible && (
+          <PatientsDescriptionForm
+            modalVisible={this.state.PatientsDescriptionModalVisible}
             handleModalVisible={this.handleModalVisible}
             currentRecordId={this.state.currentRecordId}
             currentUserName={this.state.currentUserName}
