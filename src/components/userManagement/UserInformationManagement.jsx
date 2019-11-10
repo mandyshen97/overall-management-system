@@ -15,8 +15,9 @@ import {
   DatePicker
 } from "antd";
 import PersonalForm from "./PersonalForm";
-import Demo from "./demo";
+import ClinicalForm from './ClinicalForm'
 import "./user-information-management.less";
+import API from "../../api/api";
 
 const { Option } = Select;
 const tableData = [
@@ -183,7 +184,7 @@ class InformationManagement extends Component {
       date: "",
       newPatientModalVisible: false, // 新建患者
       patientScaleModalVisible: false, // 患者量表信息展示
-      modalVisible3: false, // 患者临床信息填写
+      clinicalModalVisible: false, // 患者临床信息填写
       modalVisible4: false, // 患者基本信息展示
       modalVisible5: false, // 患者任务基本信息填写
       edit: false,
@@ -193,22 +194,61 @@ class InformationManagement extends Component {
     };
   }
 
+  componentDidMount() {
+    // todo
+    // API.getPatientList().then(res=>{
+    //   // todo
+    //   //将res的数据放进tableData中
+    // })
+  }
+
   // 处理查询提交
-  handleSearchSubmit = () => {
-    // todo
+  handleSearchSubmit = e => {
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        console.log(values); //{patientId: undefined, patientName: undefined, doctorName: undefined, wcstType: undefined}
+        const { date } = this.state;
+        let param = {
+          medId: values.patientId,
+          name: values.patientName,
+          doctorName: values.doctorName,
+          disId: values.wcstType
+        };
+        // API.getPatientList(param).then(res=>{
+        //   //todo
+        // })
+      }
+    });
   };
 
-  handleClick = () => {
-    // todo
+  // 处理重置
+  handleReset = () => {
+    this.props.form.resetFields();
+    this.setState({
+      date: ""
+    });
   };
 
-  // 新建患者个人信息弹框
-  // showInformationModal = () => {
-  //   console.log('改变')
-  //   this.setState({
-  //     newPatientModalVisible: true
-  //   });
-  // };
+  handleClick = (flag, record, msg) => {
+    console.log('click')
+    if (msg === "personalInfo") {
+      this.setState({
+        edit: true,
+        newPatientModalVisible: flag,
+        currentRecordId: record.id,
+        currentUserName: record.name
+      });
+    }
+    if(msg === "clinicalInfo") {
+      this.setState({
+          edit: true,
+          clinicalModalVisible: flag,
+          currentUserName: record.name,
+          currentRecordId: record.id,
+      });
+  }
+  };
 
   // 查询表单
   renderSearch = () => {
@@ -305,7 +345,7 @@ class InformationManagement extends Component {
     );
   };
 
-  显示弹框
+  显示弹框;
   handleModalVisible = (flag, msg) => {
     if (msg === "personalInfo") {
       this.setState({
@@ -313,6 +353,12 @@ class InformationManagement extends Component {
         newPatientModalVisible: flag
       });
     }
+    if(msg === 'clinicalInfo') {
+      this.setState({
+          edit: false,
+          clinicalModalVisible: flag,
+      });
+  }
   };
 
   colums = [
@@ -492,7 +538,7 @@ class InformationManagement extends Component {
   ];
 
   render() {
-    console.log(this.state.newPatientModalVisible);
+    console.log(this.state.clinicalModalVisible);
     return (
       <div className="main-content">
         {this.renderSearch()}
@@ -504,6 +550,15 @@ class InformationManagement extends Component {
           <PersonalForm
             modalVisible={this.state.newPatientModalVisible}
             handleModalVisible={this.handleModalVisible}
+          />
+        )}
+        {/* 临床信息采集弹框 */}
+        {this.state.clinicalModalVisible && (
+          <ClinicalForm
+            modalVisible={this.state.clinicalModalVisible}
+            handleModalVisible={this.handleModalVisible}
+            currentRecordId={this.state.currentRecordId}
+            currentUserName={this.state.currentUserName}
           />
         )}
       </div>

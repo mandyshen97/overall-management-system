@@ -26,7 +26,14 @@ class PersonalForm extends Component {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    const { edit, currentRecordId} = this.props;
+    // 从后台获取数据
+    if(edit){
+      // API.
+      // todo
+    }
+  }
 
   // 提交个人信息到数据库
   handlePersonInfoSubmit = e => {
@@ -42,13 +49,15 @@ class PersonalForm extends Component {
             personInfo: { ...values }
           },
           () => {
+            debugger
+            console.log(this.state)
             this.props.handleModalVisible(false, "personalInfo");
             // API.patientRegister({
             //   ...this.state.personInfo
             // }).then(res => {
             //   console.log(res);
             //   Message.success("新建患者个人信息成功");
-            //   // todo
+               // todo
             // });
           }
         );
