@@ -21,7 +21,7 @@ const UrlMap = [
   {
     description: '患者注册',
     method: 'patientRegister',
-    url: ' /nir/patient/register',
+    url: ' /nir/som/patient/register',
     type: 'POST'
   },
   {
