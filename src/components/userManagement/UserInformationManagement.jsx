@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from "react";
+import axios from 'axios'
 import {
   Input,
   Icon,
@@ -197,11 +198,28 @@ class InformationManagement extends Component {
   }
 
   componentDidMount() {
-    // todo
-    // API.getPatientList().then(res=>{
-    //   // todo
-    //   //将res的数据放进tableData中
+    API.getPatientList({a:1,b:2,c:3}).then(res=>{
+      console.log(res)
+
+      // todo
+      //将res的数据放进tableData中
+    })
+    
+    // let data={username: 'example'}
+    // fetch('http://10.13.81.186:8080/nir/som/patient/getList',{
+    //   method: 'POST',
+    //   body:JSON.stringify(data),
+    //   headers: {
+    //   'Content-Type': 'application/json'
+    // },}).then(res=>{
+    //   console.log(res)
     // })
+
+    // axios.post('http://10.13.81.186:8080/nir/som/patient/getList',{a:1,b:2,c:3}).then(res=>{
+    //   console.log(res)
+    // })
+
+
   }
 
   // 处理查询提交
@@ -334,7 +352,7 @@ class InformationManagement extends Component {
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            查询
+            查询患者信息
           </Button>
           <Button style={{ marginLeft: "20px" }} onClick={this.handleReset}>
             重置

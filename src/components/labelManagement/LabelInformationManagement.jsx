@@ -134,7 +134,7 @@ class LabelInformationManagement extends Component {
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            查询
+            查询任务信息
           </Button>
           <Button style={{ marginLeft: '20px' }} onClick={this.handleReset}>
             重置

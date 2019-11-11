@@ -154,7 +154,7 @@ class PersonalForm extends Component {
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
           <Button type="primary" htmlType="submit">
-            添加/更新采集个人信息
+            更新采集个人信息
           </Button>
         </Form.Item>
       </Form>
