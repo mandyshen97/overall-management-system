@@ -1,19 +1,15 @@
 import React, { Component, Fragment } from "react";
-import axios from "axios";
 import {
   Input,
   Icon,
   Button,
   Select,
   Table,
-  Modal,
   Form,
   Row,
-  Col,
   Divider,
   Tooltip,
-  Tag,
-  DatePicker
+  Tag
 } from "antd";
 import PersonalForm from "./PersonalForm";
 import ClinicalForm from "./ClinicalForm";
@@ -38,7 +34,8 @@ class InformationManagement extends Component {
       currentRecordId: -1,
       currentUserName: "undefined",
       informationModalVisiable: false,
-      tableData: []
+      tableData: [], // 表格数据
+      doctorList: [] // 医生数据
     };
   }
 
@@ -46,14 +43,33 @@ class InformationManagement extends Component {
     API.getPatientList({}).then(res => {
       let patientTableData = [];
       res.data.map((item, index) => {
-        item.key = item.id
+        item.key = index;
         patientTableData.push(item);
-        console.log(patientTableData)
       });
       this.setState({
         tableData: patientTableData
+      },()=>{
+        console.log(this.state.tableData,'this.state.tableData')
       });
     });
+
+    // 获取医生列表
+    API.getDoctorList({}).then(res => {
+      console.log(res);
+      let newDoctorList = [];
+      res.data.map((item, index) => {
+        newDoctorList.push(item);
+      });
+      this.setState({
+        doctorList: newDoctorList
+      });
+    });
+
+    // fetch('http://10.13.81.186:8080/nir/som/doctor/getList',{
+    //   method: 'GET',
+    // }).then(res=>{
+    //   console.log(res)
+    // })
 
     // let data={username: 'example'}
     // fetch('http://10.13.81.186:8080/nir/som/patient/getList',{
@@ -71,17 +87,23 @@ class InformationManagement extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log(values); //{patientId: undefined, patientName: undefined, doctorName: undefined, wcstType: undefined}
-        const { date } = this.state;
+        console.log(values); //{patientId: undefined, patientName: undefined, doctorId: 2, wcstType: undefined}
         let param = {
           medId: values.patientId,
           name: values.patientName,
-          doctorName: values.doctorName,
+          doctorId: values.doctorId,
           disId: values.wcstType
         };
-        // API.getPatientList(param).then(res=>{
-        //   //todo
-        // })
+        API.getPatientList(param).then(res => {
+          let patientTableData = [];
+          res.data.map((item, index) => {
+            item.key = index;
+            patientTableData.push(item);
+          });
+          this.setState({
+            tableData: patientTableData
+          });
+        });
       }
     });
   };
@@ -156,7 +178,7 @@ class InformationManagement extends Component {
           )}
         </Form.Item>
         <Form.Item>
-          {getFieldDecorator("doctorName", {})(
+          {getFieldDecorator("doctorId", {})(
             <Select
               showSearch
               style={{ width: 200 }}
@@ -167,10 +189,9 @@ class InformationManagement extends Component {
                   .indexOf(input.toLowerCase()) >= 0
               }
             >
-              <Option value="doctor1">医生1</Option>
-              <Option value="doctor2">医生2</Option>
-              <Option value="doctor3">医生3</Option>
-              <Option value="doctor4">医生4</Option>
+              {this.state.doctorList.map((item, index) => (
+                <Option value={item.id} key={index}>{item.name}</Option>
+              ))}
             </Select>
           )}
         </Form.Item>
@@ -186,11 +207,11 @@ class InformationManagement extends Component {
                   .indexOf(input.toLowerCase()) >= 0
               }
             >
-              <Option value="type1">单纯性失眠</Option>
-              <Option value="type2">伴过度觉醒</Option>
-              <Option value="type3">伴焦虑</Option>
-              <Option value="type4">伴抑郁</Option>
-              <Option value="type5">正常</Option>
+              <Option value="1">单纯性失眠</Option>
+              <Option value="2">伴过度觉醒</Option>
+              <Option value="3">伴焦虑</Option>
+              <Option value="4">伴抑郁</Option>
+              <Option value="0">正常</Option>
             </Select>
           )}
         </Form.Item>
@@ -275,7 +296,7 @@ class InformationManagement extends Component {
     },
     {
       title: "患病类型",
-      dataIndex: "wcstType",
+      dataIndex: "disease",
       width: "10%",
       render: text => {
         const wcstItem = [
@@ -285,7 +306,7 @@ class InformationManagement extends Component {
           { label: "伴抑郁", value: 4 },
           { label: "正常", value: 0 }
         ];
-        const item = wcstItem.find(v => v.value === text);
+        const item = wcstItem.find(v => v.label === text);
         if (!item) {
           return <Tag color="#2db7f5">{"未诊断"}</Tag>;
         } else {
@@ -319,7 +340,7 @@ class InformationManagement extends Component {
                       lineHeight: "1"
                     }}
                   >
-                    编辑
+                    展示
                   </span>
                 </div>
               </Tooltip>
@@ -334,7 +355,7 @@ class InformationManagement extends Component {
       render: (text, record) => {
         return (
           <Fragment>
-            <Tooltip title="个人采集信息">
+            <Tooltip title="个人信息采集">
               <span
                 onClick={() => this.handleClick(true, record, "personalInfo")}
               >
@@ -346,7 +367,7 @@ class InformationManagement extends Component {
                     lineHeight: "1"
                   }}
                 >
-                  个人
+                  个人信息采集
                 </span>
               </span>
             </Tooltip>
@@ -366,7 +387,7 @@ class InformationManagement extends Component {
                     lineHeight: "1"
                   }}
                 >
-                  临床
+                  临床信息采集
                 </span>
               </span>
             </Tooltip>
