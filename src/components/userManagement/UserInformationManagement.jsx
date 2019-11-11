@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import axios from 'axios'
+import axios from "axios";
 import {
   Input,
   Icon,
@@ -23,162 +23,6 @@ import "./user-information-management.less";
 import API from "../../api/api";
 
 const { Option } = Select;
-const tableData = [
-  {
-    key: 0,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 1,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 2,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 3,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 4,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 5,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 6,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 7,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 8,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 9,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  },
-  {
-    key: 10,
-    name: "mandy",
-    uniqueNumber: {
-      id: 1,
-      name: "mandy"
-    },
-    gender: 0,
-    age: 10,
-    wcstType: 1,
-    doctorId: 101,
-    testTime: "timeString",
-    testType: "testType"
-  }
-];
 
 class InformationManagement extends Component {
   constructor(props) {
@@ -193,18 +37,24 @@ class InformationManagement extends Component {
       edit: false,
       currentRecordId: -1,
       currentUserName: "undefined",
-      informationModalVisiable: false
+      informationModalVisiable: false,
+      tableData: []
     };
   }
 
   componentDidMount() {
-    API.getPatientList({a:1,b:2,c:3}).then(res=>{
-      console.log(res)
+    API.getPatientList({}).then(res => {
+      let patientTableData = [];
+      res.data.map((item, index) => {
+        item.key = item.id
+        patientTableData.push(item);
+        console.log(patientTableData)
+      });
+      this.setState({
+        tableData: patientTableData
+      });
+    });
 
-      // todo
-      //将res的数据放进tableData中
-    })
-    
     // let data={username: 'example'}
     // fetch('http://10.13.81.186:8080/nir/som/patient/getList',{
     //   method: 'POST',
@@ -214,12 +64,6 @@ class InformationManagement extends Component {
     // },}).then(res=>{
     //   console.log(res)
     // })
-
-    // axios.post('http://10.13.81.186:8080/nir/som/patient/getList',{a:1,b:2,c:3}).then(res=>{
-    //   console.log(res)
-    // })
-
-
   }
 
   // 处理查询提交
@@ -256,7 +100,7 @@ class InformationManagement extends Component {
       this.setState({
         edit: true,
         newPatientModalVisible: flag,
-        currentRecordId: record.uniqueNumber.id,
+        currentRecordId: record.id,
         currentUserName: record.name
       });
     }
@@ -265,7 +109,7 @@ class InformationManagement extends Component {
         edit: true,
         clinicalModalVisible: flag,
         currentUserName: record.name,
-        currentRecordId: record.uniqueNumber.id
+        currentRecordId: record.id
       });
     }
     if (msg === "missionBasicInfo") {
@@ -273,7 +117,7 @@ class InformationManagement extends Component {
         edit: true,
         missionModalVisible: flag,
         currentUserName: record.name,
-        currentRecordId: record.uniqueNumber.id
+        currentRecordId: record.id
       });
     }
     if (msg === "patientsDescription") {
@@ -281,7 +125,7 @@ class InformationManagement extends Component {
         edit: true,
         PatientsDescriptionModalVisible: flag,
         currentUserName: record.name,
-        currentRecordId: record.uniqueNumber.id
+        currentRecordId: record.id
       });
     }
   };
@@ -406,11 +250,10 @@ class InformationManagement extends Component {
     },
     {
       title: "唯一编号",
-      dataIndex: "uniqueNumber",
+      dataIndex: "medId",
       width: "10%",
-      render: record => {
-        let number = record.id + "_" + record.name;
-        return <span>{number}</span>;
+      render: medId => {
+        return <span>{medId}</span>;
       }
     },
     {
@@ -427,7 +270,7 @@ class InformationManagement extends Component {
     },
     {
       title: "患者年龄",
-      dataIndex: "age",
+      dataIndex: "birthday",
       width: "10%"
     },
     {
@@ -452,7 +295,7 @@ class InformationManagement extends Component {
     },
     {
       title: "主治医生",
-      dataIndex: "doctorId",
+      dataIndex: "doctorName",
       width: "10%"
     },
     {
@@ -559,7 +402,7 @@ class InformationManagement extends Component {
                     lineHeight: "1"
                   }}
                 >
-                  新建
+                  添加测试任务
                 </span>
               </span>
             </Tooltip>
@@ -575,7 +418,11 @@ class InformationManagement extends Component {
       <div className="main-content">
         {this.renderSearch()}
         <div className="information-tabel-content">
-          <Table bordered columns={this.colums} dataSource={tableData}></Table>
+          <Table
+            bordered
+            columns={this.colums}
+            dataSource={this.state.tableData}
+          ></Table>
         </div>
         {/* 新建患者/个人信息采集弹框 */}
         {this.state.newPatientModalVisible && (

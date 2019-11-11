@@ -87,7 +87,6 @@ UrlMap.forEach(item => {
   API[item.method] = function(data) {
     // data是请求参数
     let url = BaseUrl + item.url;
-
     let option = {
       method: item.type, // 请求方式
       mode: "cors",
