@@ -69,7 +69,7 @@ const UrlMap = [
   {
     description: "查询患者任务/测试列表",
     method: "InquirePatientTaskList",
-    url: "/nir/patient/list",
+    url: "/nir/som/patient/getTaskList",
     type: "POST"
   },
   {

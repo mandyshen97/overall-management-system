@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from "react";
+import { getAge } from "../../config/dateConfig";
 import {
   Input,
   Icon,
@@ -24,7 +25,6 @@ class InformationManagement extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      date: "",
       newPatientModalVisible: false, // 新建患者
       patientScaleModalVisible: false, // 患者量表信息展示
       clinicalModalVisible: false, // 患者临床信息填写
@@ -44,6 +44,7 @@ class InformationManagement extends Component {
       let patientTableData = [];
       res.data.map((item, index) => {
         item.key = index;
+        item.age = getAge(item.birthday)
         patientTableData.push(item);
       });
       this.setState({
@@ -111,9 +112,6 @@ class InformationManagement extends Component {
   // 处理重置
   handleReset = () => {
     this.props.form.resetFields();
-    this.setState({
-      date: ""
-    });
   };
 
   handleClick = (flag, record, msg) => {
@@ -291,7 +289,7 @@ class InformationManagement extends Component {
     },
     {
       title: "患者年龄",
-      dataIndex: "birthday",
+      dataIndex: "age",
       width: "10%"
     },
     {
