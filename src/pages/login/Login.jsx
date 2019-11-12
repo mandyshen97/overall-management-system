@@ -16,7 +16,6 @@ class Login extends Component {
     });
   };
   render() {
-    console.log(this.props)
     // 如果用户已经登录，自动跳转到管理界面
     const user = memoryUtils.user
     if (user && user._id) {

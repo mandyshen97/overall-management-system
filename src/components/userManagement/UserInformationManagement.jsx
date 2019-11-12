@@ -420,7 +420,6 @@ class InformationManagement extends Component {
   ];
 
   render() {
-    console.log(this.state.tableData);
     return (
       <div className="main-content">
         {this.renderSearch()}

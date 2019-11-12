@@ -19,6 +19,7 @@ import {
 } from "antd";
 import moment from "moment";
 import API from "../../api/api";
+import CollectInformationDisplay from "./CollectInformationDisplay";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -38,7 +39,7 @@ class LabelInformationManagement extends Component {
     super(props);
     this.state = {
       date: initTime,
-      modalVisible1: false, // 个人采集信息表单的视觉信息
+      CollectInformationModalVisible: false, // 采集信息展示弹框是否可见
       modalVisible2: false, // 任务采集信息表单
       modalVisible3: false, // 临床信息采集表单
       modalVisible4: false, // 采集信息总体描述
@@ -46,6 +47,7 @@ class LabelInformationManagement extends Component {
       edit: false,
       currentRecordId: -1,
       currentUserName: "undefined",
+      currentRecord: undefined,
       tableData: [],
       doctorList: [] // 医生数据
     };
@@ -73,7 +75,6 @@ class LabelInformationManagement extends Component {
     let newTableData = [];
     res.data.map((item, index) => {
       let newTableDataItem = {};
-      newTableDataItem.key = index;
       newTableDataItem.name = item.patient.name;
       newTableDataItem.medId = item.patient.medId;
       newTableDataItem.gender = item.patient.gender;
@@ -82,7 +83,9 @@ class LabelInformationManagement extends Component {
       newTableDataItem.doctorName = item.patient.doctorName;
       newTableDataItem.testTime = item.task.time;
       newTableDataItem.testType = item.type === 0 ? "WCST" : "睡眠测试";
-      newTableData.push(newTableDataItem);
+      Object.assign(item,newTableDataItem )
+      item.key = index
+      newTableData.push(item);
     });
     this.setState({
       tableData: newTableData
@@ -98,11 +101,11 @@ class LabelInformationManagement extends Component {
           medId: values.patientID,
           name: values.patientName,
           doctorId: values.doctorId,
-          disease: values.wcstType,
+          disease: values.wcstType
         };
-        if(values.date){
-          param.startTime=formatDate(values.date[0])
-          param.endTime=formatDate(values.date[1])
+        if (values.date) {
+          param.startTime = formatDate(values.date[0]);
+          param.endTime = formatDate(values.date[1]);
         }
         API.InquirePatientTaskList(param).then(res => {
           this.getTableDate(res);
@@ -120,6 +123,86 @@ class LabelInformationManagement extends Component {
       date: ""
     });
   };
+
+  //用于显示新建标注页面
+  handleModalVisible = (flag, msg) => {
+    if (msg === "description") {
+      this.setState({
+        edit: false,
+        CollectInformationModalVisible: flag
+      });
+    }
+    // if(msg === 'scaleInfo') {
+    //     this.setState({
+    //         edit: false,
+    //         modalVisible2: !!flag,
+    //     });
+    // }
+    // if(msg === 'clinicalInfo') {
+    //     this.setState({
+    //         edit: false,
+    //         modalVisible3: !!flag,
+    //     });
+    // }
+    // if(msg === 'patientsDescription') {
+    //     this.setState({
+    //         edit: false,
+    //         modalVisible4: !!flag,
+    //     });
+    // }
+    // if(msg === 'missionBasicInfo') {
+    //     this.setState({
+    //         edit: false,
+    //         modalVisible5: !!flag,
+    //     });
+    // }
+  };
+  //表格上点击操作编辑按钮是直接将id数据传送
+  handleClick = (flag, record, msg) => {
+    if (msg === "description") {
+      this.setState({
+        edit: true,
+        CollectInformationModalVisible: flag,
+        currentRecordId: record.medId,
+        currentUserName: record.name,
+        currentRecord: record
+        // currentKey=
+      });
+    }
+    // if(msg === "scaleInfo") {
+    //     this.setState({
+    //         edit: true,
+    //         modalVisible2:!!flag,
+    //         currentUserName: record.name,
+    //         currentRecordId: record.id,
+    //     });
+    // }
+    // if(msg === "clinicalInfo") {
+    //     this.setState({
+    //         edit: true,
+    //         modalVisible3:!!flag,
+    //         currentUserName: record.name,
+    //         currentRecordId: record.id,
+    //     });
+    // }
+    // if(msg === "patientsDescription") {
+    //     this.setState({
+    //         edit: true,
+    //         modalVisible4:!!flag,
+    //         currentUserName: record.name,
+    //         currentRecordId: record.id,
+    //     });
+    // }
+    // if(msg === "missionBasicInfo") {
+    //     this.setState({
+    //         edit: true,
+    //         modalVisible5:!!flag,
+    //         currentUserName: record.name,
+    //         currentRecordId: record.id,
+    //     });
+    // }
+  };
+
   //查询表单
   renderSearch() {
     const { form } = this.props;
@@ -277,6 +360,7 @@ class LabelInformationManagement extends Component {
               <Tooltip title="采集信息展示">
                 <span
                   onClick={() => this.handleClick(true, record, "description")}
+                  style={{ cursor: "pointer" }}
                 >
                   <Icon type="edit" />
                   <span style={{ marginLeft: "5px" }}>采集信息展示</span>
@@ -293,12 +377,11 @@ class LabelInformationManagement extends Component {
       render: (text, record) => {
         return (
           <Fragment>
-            {/* <Tooltip title="个人采集信息">
-                            <Icon type="edit" onClick={ () =>this.handleClick(true, record, 'personalInfo')}/>
-                        </Tooltip>
-                        <Divider type='vertical' /> */}
             <Tooltip title="数据存储关联">
-              <span onClick={() => this.handleClick(true, record, "dataPath")}>
+              <span
+                onClick={() => this.handleClick(true, record, "dataPath")}
+                style={{ cursor: "pointer" }}
+              >
                 <Icon type="dropbox" />
                 <span style={{ marginLeft: "5px" }}>数据存储关联</span>
               </span>
@@ -307,22 +390,18 @@ class LabelInformationManagement extends Component {
             <Tooltip title="任务测试信息">
               <span
                 onClick={() => this.handleClick(true, record, "missionInfo")}
+                style={{ cursor: "pointer" }}
               >
                 <Icon type="apple" />
                 <span style={{ marginLeft: "5px" }}>更新任务测试信息</span>
               </span>
             </Tooltip>
-            {/* <Divider type='vertical' />
-                        <Tooltip title="临床信息采集">
-                            <Icon type="codepen-circle" onClick={ () =>this.handleClick(true, record, 'clinicalInfo')}/>
-                        </Tooltip> */}
           </Fragment>
         );
       }
     }
   ];
   render() {
-    console.log("render----------------");
     return (
       <div className="main-content">
         {this.renderSearch()}
@@ -350,6 +429,15 @@ class LabelInformationManagement extends Component {
           columns={this.columns}
           dataSource={this.state.tableData}
         />
+        {this.state.CollectInformationModalVisible && (
+          <CollectInformationDisplay
+            modalVisible={this.state.CollectInformationModalVisible}
+            handleModalVisible={this.handleModalVisible}
+            currentRecordId={this.state.currentRecordId}
+            currentUserName={this.state.currentUserName}
+            currentRecord={this.state.currentRecord}
+          />
+        )}
       </div>
     );
   }

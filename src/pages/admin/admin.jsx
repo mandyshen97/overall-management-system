@@ -23,7 +23,6 @@ class Admin extends Component {
   }
 
   onCollapse = collapsed => {
-    console.log(collapsed);
     this.setState({ collapsed });
   };
 
@@ -48,7 +47,6 @@ class Admin extends Component {
   }
 
   render() {
-    console.log(this.props)
     return (
       <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
         <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse} style={{ height: '100vh' }} className="sider">
