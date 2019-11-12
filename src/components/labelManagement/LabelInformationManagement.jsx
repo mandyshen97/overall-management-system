@@ -19,20 +19,14 @@ import {
 } from "antd";
 import moment from "moment";
 import API from "../../api/api";
-import CollectInformationDisplay from "./CollectInformationDisplay";
+import CollectInformationDisplay from "../Modals/CollectInformationDisplay";
+import DataAssociationForm from "../Modals/DataAssociationForm";
+import TaskInformationCollection from "../Modals/TaskInformationCollection";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const dateFormat = "YYYY/MM/DD";
 const initTime = [moment().subtract(7, "days"), moment().subtract(1, "days")];
-const wcstItem = [
-  { label: "单纯性失眠", value: 1 },
-  { label: "伴过度觉醒", value: 2 },
-  { label: "伴焦虑", value: 3 },
-  { label: "伴抑郁", value: 4 },
-  { label: "正常", value: 0 }
-];
 
 class LabelInformationManagement extends Component {
   constructor(props) {
@@ -40,6 +34,8 @@ class LabelInformationManagement extends Component {
     this.state = {
       date: initTime,
       CollectInformationModalVisible: false, // 采集信息展示弹框是否可见
+      DataAssociationFormModalVisible: false, // 数据关联弹框是否可见
+      taskInformationCollectionVisible: false, // 更新任务弹框是否可见
       modalVisible2: false, // 任务采集信息表单
       modalVisible3: false, // 临床信息采集表单
       modalVisible4: false, // 采集信息总体描述
@@ -49,7 +45,8 @@ class LabelInformationManagement extends Component {
       currentUserName: "undefined",
       currentRecord: undefined,
       tableData: [],
-      doctorList: [] // 医生数据
+      doctorList: [], // 医生数据
+      diseaseList: [], // 疾病列表
     };
   }
 
@@ -69,6 +66,13 @@ class LabelInformationManagement extends Component {
         doctorList: newDoctorList
       });
     });
+
+    // 获取疾病列表
+    API.getDiseaseList({}).then(res => {
+      this.setState({
+        diseaseList: res.data
+      });
+    });
   }
   // 处理表格数据
   getTableDate = res => {
@@ -83,8 +87,8 @@ class LabelInformationManagement extends Component {
       newTableDataItem.doctorName = item.patient.doctorName;
       newTableDataItem.testTime = item.task.time;
       newTableDataItem.testType = item.type === 0 ? "WCST" : "睡眠测试";
-      Object.assign(item,newTableDataItem )
-      item.key = index
+      Object.assign(item, newTableDataItem);
+      item.key = index;
       newTableData.push(item);
     });
     this.setState({
@@ -101,7 +105,7 @@ class LabelInformationManagement extends Component {
           medId: values.patientID,
           name: values.patientName,
           doctorId: values.doctorId,
-          disease: values.wcstType
+          disId: values.diseaseType
         };
         if (values.date) {
           param.startTime = formatDate(values.date[0]);
@@ -132,30 +136,18 @@ class LabelInformationManagement extends Component {
         CollectInformationModalVisible: flag
       });
     }
-    // if(msg === 'scaleInfo') {
-    //     this.setState({
-    //         edit: false,
-    //         modalVisible2: !!flag,
-    //     });
-    // }
-    // if(msg === 'clinicalInfo') {
-    //     this.setState({
-    //         edit: false,
-    //         modalVisible3: !!flag,
-    //     });
-    // }
-    // if(msg === 'patientsDescription') {
-    //     this.setState({
-    //         edit: false,
-    //         modalVisible4: !!flag,
-    //     });
-    // }
-    // if(msg === 'missionBasicInfo') {
-    //     this.setState({
-    //         edit: false,
-    //         modalVisible5: !!flag,
-    //     });
-    // }
+    if (msg === "dataPath") {
+      this.setState({
+        edit: false,
+        DataAssociationFormModalVisible: flag
+      });
+    }
+    if (msg === "taskInfo") {
+      this.setState({
+        edit: false,
+        taskInformationCollectionVisible: flag
+      });
+    }
   };
   //表格上点击操作编辑按钮是直接将id数据传送
   handleClick = (flag, record, msg) => {
@@ -163,44 +155,25 @@ class LabelInformationManagement extends Component {
       this.setState({
         edit: true,
         CollectInformationModalVisible: flag,
-        currentRecordId: record.medId,
-        currentUserName: record.name,
+        // currentRecordId: record.medId,
+        // currentUserName: record.name,
         currentRecord: record
-        // currentKey=
       });
     }
-    // if(msg === "scaleInfo") {
-    //     this.setState({
-    //         edit: true,
-    //         modalVisible2:!!flag,
-    //         currentUserName: record.name,
-    //         currentRecordId: record.id,
-    //     });
-    // }
-    // if(msg === "clinicalInfo") {
-    //     this.setState({
-    //         edit: true,
-    //         modalVisible3:!!flag,
-    //         currentUserName: record.name,
-    //         currentRecordId: record.id,
-    //     });
-    // }
-    // if(msg === "patientsDescription") {
-    //     this.setState({
-    //         edit: true,
-    //         modalVisible4:!!flag,
-    //         currentUserName: record.name,
-    //         currentRecordId: record.id,
-    //     });
-    // }
-    // if(msg === "missionBasicInfo") {
-    //     this.setState({
-    //         edit: true,
-    //         modalVisible5:!!flag,
-    //         currentUserName: record.name,
-    //         currentRecordId: record.id,
-    //     });
-    // }
+    if (msg === "dataPath") {
+      this.setState({
+        edit: true,
+        DataAssociationFormModalVisible: flag,
+        currentRecord: record
+      });
+    }
+    if (msg === "taskInfo") {
+      this.setState({
+        edit: true,
+        taskInformationCollectionVisible: flag,
+        currentRecord: record
+      });
+    }
   };
 
   //查询表单
@@ -249,7 +222,7 @@ class LabelInformationManagement extends Component {
           )}
         </Form.Item>
         <Form.Item>
-          {getFieldDecorator("wcstType", {})(
+          {getFieldDecorator("diseaseType", {})(
             <Select
               showSearch
               style={{ width: 200 }}
@@ -260,9 +233,9 @@ class LabelInformationManagement extends Component {
                   .indexOf(input.toLowerCase()) >= 0
               }
             >
-              {wcstItem.map((item, index) => (
-                <Option value={item.value} key={index}>
-                  {item.label}
+              {this.state.diseaseList.map((item, index) => (
+                <Option value={item.id} key={index}>
+                  {item.name}
                 </Option>
               ))}
             </Select>
@@ -327,11 +300,11 @@ class LabelInformationManagement extends Component {
       dataIndex: "disease",
       width: "7%",
       render: text => {
-        const item = wcstItem.find(v => v.label === text);
+        const item = this.state.diseaseList.find(v => v.name === text);
         if (!item) {
           return <Tag color="#2db7f5">{"未诊断"}</Tag>;
         } else {
-          return <Tag color="#2db7f5">{item.label}</Tag>;
+          return <Tag color="#2db7f5">{item.name}</Tag>;
         }
       }
     },
@@ -389,7 +362,7 @@ class LabelInformationManagement extends Component {
             <Divider type="vertical" />
             <Tooltip title="任务测试信息">
               <span
-                onClick={() => this.handleClick(true, record, "missionInfo")}
+                onClick={() => this.handleClick(true, record, "taskInfo")}
                 style={{ cursor: "pointer" }}
               >
                 <Icon type="apple" />
@@ -429,12 +402,29 @@ class LabelInformationManagement extends Component {
           columns={this.columns}
           dataSource={this.state.tableData}
         />
+        {/* 采集信息展示弹框 */}
         {this.state.CollectInformationModalVisible && (
           <CollectInformationDisplay
             modalVisible={this.state.CollectInformationModalVisible}
             handleModalVisible={this.handleModalVisible}
             currentRecordId={this.state.currentRecordId}
             currentUserName={this.state.currentUserName}
+            currentRecord={this.state.currentRecord}
+          />
+        )}
+        {/* 数据关联弹框 */}
+        {this.state.DataAssociationFormModalVisible && (
+          <DataAssociationForm
+            modalVisible={this.state.DataAssociationFormModalVisible}
+            handleModalVisible={this.handleModalVisible}
+            currentRecord={this.state.currentRecord}
+          />
+        )}
+        {/* 更新任务弹框 */}
+        {this.state.taskInformationCollectionVisible && (
+          <TaskInformationCollection
+            modalVisible={this.state.taskInformationCollectionVisible}
+            handleModalVisible={this.handleModalVisible}
             currentRecord={this.state.currentRecord}
           />
         )}

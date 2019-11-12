@@ -12,10 +12,10 @@ import {
   Tooltip,
   Tag
 } from "antd";
-import PersonalForm from "./PersonalForm";
-import ClinicalForm from "./ClinicalForm";
-import MissionInfoForm from "./MissionInfoForm";
-import PatientsDescriptionForm from "./PatientsDescriptionForm";
+import PersonalForm from "../Modals/PersonalForm";
+import ClinicalForm from "../Modals/ClinicalForm";
+import MissionInfoForm from "../Modals/MissionInfoForm";
+import PatientsDescriptionForm from "../Modals/PatientsDescriptionForm";
 import "./user-information-management.less";
 import API from "../../api/api";
 
@@ -33,15 +33,15 @@ class InformationManagement extends Component {
       edit: false,
       currentRecordId: -1,
       currentUserName: "undefined",
-      informationModalVisiable: false,
       tableData: [], // 表格数据
-      doctorList: [] // 医生数据
+      doctorList: [], // 医生数据
+      diseaseList: [] // 疾病列表
     };
   }
 
   componentDidMount() {
     API.getPatientList({}).then(res => {
-      this.getTableDate(res)
+      this.getTableDate(res);
     });
 
     // 获取医生列表
@@ -52,6 +52,14 @@ class InformationManagement extends Component {
       });
       this.setState({
         doctorList: newDoctorList
+      });
+    });
+
+    // 获取疾病列表
+    API.getDiseaseList({}).then(res => {
+      console.log(res);
+      this.setState({
+        diseaseList: res.data
       });
     });
   }
@@ -87,7 +95,7 @@ class InformationManagement extends Component {
           disId: values.wcstType
         };
         API.getPatientList(param).then(res => {
-          this.getTableDate(res)
+          this.getTableDate(res);
         });
       }
     });
@@ -97,7 +105,7 @@ class InformationManagement extends Component {
   handleReset = () => {
     this.props.form.resetFields();
     API.getPatientList({}).then(res => {
-      this.getTableDate(res)
+      this.getTableDate(res);
     });
   };
 
@@ -193,11 +201,11 @@ class InformationManagement extends Component {
                   .indexOf(input.toLowerCase()) >= 0
               }
             >
-              <Option value="1">单纯性失眠</Option>
-              <Option value="2">伴过度觉醒</Option>
-              <Option value="3">伴焦虑</Option>
-              <Option value="4">伴抑郁</Option>
-              <Option value="0">正常</Option>
+              {this.state.diseaseList.map((item, index) => (
+                <Option key={index} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
             </Select>
           )}
         </Form.Item>
@@ -285,18 +293,11 @@ class InformationManagement extends Component {
       dataIndex: "disease",
       width: "10%",
       render: text => {
-        const wcstItem = [
-          { label: "单纯性失眠", value: 1 },
-          { label: "伴过度觉醒", value: 2 },
-          { label: "伴焦虑", value: 3 },
-          { label: "伴抑郁", value: 4 },
-          { label: "正常", value: 0 }
-        ];
-        const item = wcstItem.find(v => v.label === text);
+        const item = this.state.diseaseList.find(v => v.name === text);
         if (!item) {
           return <Tag color="#2db7f5">{"未诊断"}</Tag>;
         } else {
-          return <Tag color="#2db7f5">{item.label}</Tag>;
+          return <Tag color="#2db7f5">{item.name}</Tag>;
         }
       }
     },
@@ -455,6 +456,7 @@ class InformationManagement extends Component {
             currentUserName={this.state.currentUserName}
           />
         )}
+        {/* 患者信息展示弹框 */}
         {this.state.PatientsDescriptionModalVisible && (
           <PatientsDescriptionForm
             modalVisible={this.state.PatientsDescriptionModalVisible}

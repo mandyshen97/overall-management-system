@@ -19,6 +19,13 @@ const UrlMap = [
     type: "GET"
   },
   {
+    description: "获取疾病列表",
+    method: "getDiseaseList",
+    url: "/nir/som/disease",
+    type: "GET"
+  },
+
+  {
     description: "患者注册",
     method: "patientRegister",
     url: "/nir/som/patient/register",
@@ -39,7 +46,7 @@ const UrlMap = [
   {
     description: "更新患者wcst任务",
     method: "updateWCST",
-    url: "/nir/patient/wcst/update",
+    url: "/nir/som/patient/wcst/update",
     type: "POST"
   },
   {

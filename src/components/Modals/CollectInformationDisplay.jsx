@@ -20,6 +20,7 @@ class CollectInformationDisplay extends Component {
       完成分类数: "cc",
       完成第一个分类所需应答数: "tcfc",
       不能维持完整分类: "fm",
+      学习到学会: "l2l",
       用时: "useTime"
     };
     // let keys = Object.keys(WCSTTask)

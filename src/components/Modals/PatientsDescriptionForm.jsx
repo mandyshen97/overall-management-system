@@ -1,3 +1,7 @@
+/**
+ * 患者信息展示弹框
+ */
+
 import React, { Component } from "react";
 import { Form, Modal, Divider, Descriptions } from "antd";
 
