@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from "react";
 import "./label-information-management.less";
 import { Line, Bar } from "echarts-for-react";
-import { getAge } from "../../config/dateConfig";
+import { getAge, formatDate } from "../../utils/dateUtils";
 import {
   Row,
-  Col,
   DatePicker,
   Button,
   Card,
@@ -23,9 +22,9 @@ import API from "../../api/api";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 const dateFormat = "YYYY/MM/DD";
 const initTime = [moment().subtract(7, "days"), moment().subtract(1, "days")];
-
 const wcstItem = [
   { label: "单纯性失眠", value: 1 },
   { label: "伴过度觉醒", value: 2 },
@@ -47,40 +46,76 @@ class LabelInformationManagement extends Component {
       edit: false,
       currentRecordId: -1,
       currentUserName: "undefined",
-      tableData: []
+      tableData: [],
+      doctorList: [] // 医生数据
     };
   }
 
   componentDidMount() {
+    // 获取患者任务列表
     API.InquirePatientTaskList({}).then(res => {
-      console.log(res.data);
-      let newTableData = [];
+      this.getTableDate(res);
+    });
+
+    // 获取医生列表
+    API.getDoctorList({}).then(res => {
+      let newDoctorList = [];
       res.data.map((item, index) => {
-        console.log(item.task.time);
-        item.key = index;
-        item.patient.age = getAge(item.patient.birthday);
-        item.patient.testTime = item.task.time;
-        if (item.type === 0) {
-          item.patient.testType = "WCST";
-        }
-        if (item.type === 1) {
-          item.patient.testType = "睡眠测试";
-        }
-        newTableData.push(item.patient);
+        newDoctorList.push(item);
       });
-      this.setState(
-        {
-          tableData: newTableData
-        },
-        () => {
-          console.log(this.state.tableData);
-        }
-      );
+      this.setState({
+        doctorList: newDoctorList
+      });
     });
   }
+  // 处理表格数据
+  getTableDate = res => {
+    let newTableData = [];
+    res.data.map((item, index) => {
+      let newTableDataItem = {};
+      newTableDataItem.key = index;
+      newTableDataItem.name = item.patient.name;
+      newTableDataItem.medId = item.patient.medId;
+      newTableDataItem.gender = item.patient.gender;
+      newTableDataItem.age = getAge(item.patient.birthday);
+      newTableDataItem.disease = item.patient.disease;
+      newTableDataItem.doctorName = item.patient.doctorName;
+      newTableDataItem.testTime = item.task.time;
+      newTableDataItem.testType = item.type === 0 ? "WCST" : "睡眠测试";
+      newTableData.push(newTableDataItem);
+    });
+    this.setState({
+      tableData: newTableData
+    });
+  };
+
+  // 处理查询提交
+  handleSearchSubmit = e => {
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        let param = {
+          medId: values.patientID,
+          name: values.patientName,
+          doctorId: values.doctorId,
+          disease: values.wcstType,
+        };
+        if(values.date){
+          param.startTime=formatDate(values.date[0])
+          param.endTime=formatDate(values.date[1])
+        }
+        API.InquirePatientTaskList(param).then(res => {
+          this.getTableDate(res);
+        });
+      }
+    });
+  };
   //重置查询条件
   handleReset = () => {
     this.props.form.resetFields();
+    API.InquirePatientTaskList({}).then(res => {
+      this.getTableDate(res);
+    });
     this.setState({
       date: ""
     });
@@ -94,6 +129,7 @@ class LabelInformationManagement extends Component {
         <Form.Item>
           {getFieldDecorator("patientID", {})(
             <Input
+              style={{ width: 200 }}
               prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
               placeholder="患者编号"
             />
@@ -102,6 +138,7 @@ class LabelInformationManagement extends Component {
         <Form.Item>
           {getFieldDecorator("patientName", {})(
             <Input
+              style={{ width: 200 }}
               prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
               placeholder="患者姓名"
             />
@@ -109,25 +146,22 @@ class LabelInformationManagement extends Component {
         </Form.Item>
 
         <Form.Item>
-          {getFieldDecorator("doctorName", {})(
+          {getFieldDecorator("doctorId", {})(
             <Select
               showSearch
               style={{ width: 200 }}
               placeholder="选择医生"
-              // onChange={onChange}
-              // onFocus={onFocus}
-              // onBlur={onBlur}
-              // onSearch={onSearch}
               filterOption={(input, option) =>
                 option.props.children
                   .toLowerCase()
                   .indexOf(input.toLowerCase()) >= 0
               }
             >
-              <Option value="doctor1">医生1</Option>
-              <Option value="doctor2">医生2</Option>
-              <Option value="doctor3">医生3</Option>
-              <Option value="doctor4">医生4</Option>
+              {this.state.doctorList.map((item, index) => (
+                <Option value={item.id} key={index}>
+                  {item.name}
+                </Option>
+              ))}
             </Select>
           )}
         </Form.Item>
@@ -143,20 +177,26 @@ class LabelInformationManagement extends Component {
                   .indexOf(input.toLowerCase()) >= 0
               }
             >
-              <Option value="type1">单纯性失眠</Option>
-              <Option value="type2">伴过度觉醒</Option>
-              <Option value="type3">伴焦虑</Option>
-              <Option value="type4">伴抑郁</Option>
-              <Option value="type5">正常</Option>
+              {wcstItem.map((item, index) => (
+                <Option value={item.value} key={index}>
+                  {item.label}
+                </Option>
+              ))}
             </Select>
           )}
         </Form.Item>
         <Form.Item>
           {getFieldDecorator("date", {})(
-            <DatePicker
-              onChange={(date, dateString) =>
-                this.handleDateSearch(date, dateString)
-              }
+            <RangePicker
+              style={{ width: 200 }}
+              placeholder={["开始日期", "结束日期"]}
+              ranges={{
+                Today: [moment(), moment()],
+                "This Month": [
+                  moment().startOf("month"),
+                  moment().endOf("month")
+                ]
+              }}
             />
           )}
         </Form.Item>
@@ -179,10 +219,8 @@ class LabelInformationManagement extends Component {
     },
     {
       title: "唯一编号",
-      width: "7%",
-      render: record => {
-        return <span>{record.medId}</span>;
-      }
+      dataIndex: "medId",
+      width: "7%"
     },
     {
       title: "患者性别",
@@ -203,7 +241,7 @@ class LabelInformationManagement extends Component {
     },
     {
       title: "患病类型",
-      dataIndex: "wcstType",
+      dataIndex: "disease",
       width: "7%",
       render: text => {
         const item = wcstItem.find(v => v.label === text);
@@ -284,6 +322,7 @@ class LabelInformationManagement extends Component {
     }
   ];
   render() {
+    console.log("render----------------");
     return (
       <div className="main-content">
         {this.renderSearch()}

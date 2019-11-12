@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { getAge } from "../../config/dateConfig";
+import { getAge } from "../../utils/dateUtils";
 import {
   Input,
   Icon,
@@ -41,22 +41,11 @@ class InformationManagement extends Component {
 
   componentDidMount() {
     API.getPatientList({}).then(res => {
-      let patientTableData = [];
-      res.data.map((item, index) => {
-        item.key = index;
-        item.age = getAge(item.birthday)
-        patientTableData.push(item);
-      });
-      this.setState({
-        tableData: patientTableData
-      },()=>{
-        console.log(this.state.tableData,'this.state.tableData')
-      });
+      this.getTableDate(res)
     });
 
     // 获取医生列表
     API.getDoctorList({}).then(res => {
-      console.log(res);
       let newDoctorList = [];
       res.data.map((item, index) => {
         newDoctorList.push(item);
@@ -65,30 +54,32 @@ class InformationManagement extends Component {
         doctorList: newDoctorList
       });
     });
-
-    // fetch('http://10.13.81.186:8080/nir/som/doctor/getList',{
-    //   method: 'GET',
-    // }).then(res=>{
-    //   console.log(res)
-    // })
-
-    // let data={username: 'example'}
-    // fetch('http://10.13.81.186:8080/nir/som/patient/getList',{
-    //   method: 'POST',
-    //   body:JSON.stringify(data),
-    //   headers: {
-    //   'Content-Type': 'application/json'
-    // },}).then(res=>{
-    //   console.log(res)
-    // })
   }
+
+  // 处理表格数据
+  getTableDate = res => {
+    let patientTableData = [];
+    res.data.map((item, index) => {
+      let patientTableDataItem = {};
+      patientTableDataItem.key = index;
+      patientTableDataItem.name = item.name;
+      patientTableDataItem.medId = item.medId;
+      patientTableDataItem.gender = item.gender;
+      patientTableDataItem.age = getAge(item.birthday);
+      patientTableDataItem.disease = item.disease;
+      patientTableDataItem.doctorName = item.doctorName;
+      patientTableData.push(patientTableDataItem);
+    });
+    this.setState({
+      tableData: patientTableData
+    });
+  };
 
   // 处理查询提交
   handleSearchSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log(values); //{patientId: undefined, patientName: undefined, doctorId: 2, wcstType: undefined}
         let param = {
           medId: values.patientId,
           name: values.patientName,
@@ -96,14 +87,7 @@ class InformationManagement extends Component {
           disId: values.wcstType
         };
         API.getPatientList(param).then(res => {
-          let patientTableData = [];
-          res.data.map((item, index) => {
-            item.key = index;
-            patientTableData.push(item);
-          });
-          this.setState({
-            tableData: patientTableData
-          });
+          this.getTableDate(res)
         });
       }
     });
@@ -112,10 +96,12 @@ class InformationManagement extends Component {
   // 处理重置
   handleReset = () => {
     this.props.form.resetFields();
+    API.getPatientList({}).then(res => {
+      this.getTableDate(res)
+    });
   };
 
   handleClick = (flag, record, msg) => {
-    console.log(record);
     if (msg === "personalInfo") {
       this.setState({
         edit: true,
@@ -188,7 +174,9 @@ class InformationManagement extends Component {
               }
             >
               {this.state.doctorList.map((item, index) => (
-                <Option value={item.id} key={index}>{item.name}</Option>
+                <Option value={item.id} key={index}>
+                  {item.name}
+                </Option>
               ))}
             </Select>
           )}
@@ -432,7 +420,7 @@ class InformationManagement extends Component {
   ];
 
   render() {
-    console.log(this.state.PatientsDescriptionModalVisible);
+    console.log(this.state.tableData);
     return (
       <div className="main-content">
         {this.renderSearch()}

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import './header.less'
-import { formateDate } from '../../utils/dateUtils'
+import { formatDateToSecond } from '../../utils/dateUtils'
 import { Icon, Modal, Button, Table } from 'antd'
 
 import menuList from './../../config/menuConfig';
@@ -10,7 +10,7 @@ class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentTime: formateDate(Date.now()), // 当前时间字符串
+      currentTime: formatDateToSecond(Date.now()), // 当前时间字符串
       dayPictureUrl: '', // 天气图片url
       weather: '', // 天气的文本
       ModalVisiable: false,
@@ -20,7 +20,7 @@ class Header extends Component {
   getTime = () => {
     // 每隔1s获取当前时间, 并更新状态数据currentTime
     this.intervalId = setInterval(() => {
-      const currentTime = formateDate(Date.now())
+      const currentTime = formatDateToSecond(Date.now())
       this.setState({ currentTime })
     }, 1000)
   }
