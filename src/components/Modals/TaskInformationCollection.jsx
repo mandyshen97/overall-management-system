@@ -24,7 +24,11 @@ class TaskInformationCollection extends Component {
       Object.assign(param, values);
       API.updateWCST(param).then(res => {
         console.log(res);
-      });
+      }).then(resolve=>{
+        API.InquirePatientTaskList({}).then(res => {
+          this.props.getTableDate(res);
+        });
+      })
       this.props.handleModalVisible(false, "taskInfo");
     });
   };

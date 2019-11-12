@@ -15,110 +15,57 @@ const WCSTItem = [
 const gender = [{ label: 0, value: "女" }, { label: 1, value: "男" }];
 
 class PatientsDescriptionForm extends Component {
-  state = {
-    formData: {
-      personInfo: {
-        age: undefined,
-        gender: undefined,
-        weight: undefined,
-        height: undefined,
-        name: undefined,
-        wcstType: undefined
-      },
-      clinicalInfo: {
-        symptomTime: undefined,
-        presentIllnessHistory: undefined,
-        chiefComplaint: undefined,
-        treatmentHistory: undefined,
-        pastHistory: undefined,
-        personalHistory: undefined,
-        familyHistory: undefined
-      }
-    }
-  };
-
-  componentDidMount() {
-    const { edit, currentRecordId } = this.props;
-    const { formData } = this.state;
-    if (edit) {
-      // dispatch({
-      //     type: 'wcstModel/fetchInfoWithWcstById',
-      //     payload: currentRecordId,
-      //     callback: res => {
-      //       console.log("***************", res);
-      //         this.setState({
-      //             formData:{
-      //                 ...formData,
-      //                 personInfo:{
-      //                     ...res.personalInfo,
-      //                 },
-      //                 missionFormData:{
-      //                     ...res.wcstTaskInfo,
-      //                 },
-      //                 clinicalInfo:{
-      //                     ...res.clinicalInfo,
-      //                 },
-      //             },
-      //         });
-      //     }
-      // });
-    }
-  }
+  state = {};
 
   renderDescription() {
-    const { formData } = this.state;
-    const personInfo = formData.personInfo;
-    const missionFormData = formData.missionFormData;
-    const clinicalInfo = formData.clinicalInfo;
-    const wcstItem = WCSTItem.find(v => v.value === personInfo.wcstType);
-    const { currentRecordId } = this.props;
-    const number = currentRecordId + "_" + personInfo.name;
-
+    const { currentRecord } = this.props;
     return (
       <div>
         <Descriptions title="患者信息">
           <Descriptions.Item label="患者姓名">
-            {personInfo.name}
+            {currentRecord.name}
           </Descriptions.Item>
           <Descriptions.Item label="患病类型">
-            {wcstItem ? wcstItem.label : ""}
+            {currentRecord.disease}
           </Descriptions.Item>
-          <Descriptions.Item label="患者编号">{number}</Descriptions.Item>
+          <Descriptions.Item label="患者编号">
+            {currentRecord.medId}
+          </Descriptions.Item>
           <Descriptions.Item label="患者性别">
-            {personInfo.gender === 1 ? "男" : "女"}
+            {currentRecord.gender === 1 ? "男" : "女"}
           </Descriptions.Item>
           <Descriptions.Item label="患者年龄">
-            {personInfo.age}
+            {currentRecord.age}
           </Descriptions.Item>
-          <Descriptions.Item label="患者体重">
-            {personInfo.weight}
+          <Descriptions.Item label="患者体重(kg)">
+            {currentRecord.weight}
           </Descriptions.Item>
-          <Descriptions.Item label="患者身高">
-            {personInfo.height}
+          <Descriptions.Item label="患者身高(cm)">
+            {currentRecord.height}
           </Descriptions.Item>
         </Descriptions>
         <Divider />
         <Descriptions title="临床信息">
           <Descriptions.Item label="症状持续时间">
-            {clinicalInfo.symptomTime}
+            {currentRecord.symptomTime}
           </Descriptions.Item>
           <Descriptions.Item label="现病史">
-            {clinicalInfo.presentIllnessHistory}
+            {currentRecord.presentIllnessHistory}
           </Descriptions.Item>
           <Descriptions.Item label="主诉">
-            {clinicalInfo.chiefComplaint}
+            {currentRecord.chiCom}
           </Descriptions.Item>
           <Descriptions.Item label="用药疗效">
-            {clinicalInfo.treatmentHistory}
+            {currentRecord.treatmentHistory}
           </Descriptions.Item>
           <Descriptions.Item label="既往史">
-            {clinicalInfo.pastHistory}
+            {currentRecord.pastHistory}
           </Descriptions.Item>
           <Descriptions.Item label="个人史">
-            {clinicalInfo.personalHistory}
+            {currentRecord.personalHistory}
           </Descriptions.Item>
           <Descriptions.Item label="家族史">
-            {clinicalInfo.familyHistory}
+            {currentRecord.familyHistory}
           </Descriptions.Item>
         </Descriptions>
       </div>
@@ -126,7 +73,9 @@ class PatientsDescriptionForm extends Component {
   }
 
   render() {
-    const title = `患者信息展示——${this.props.currentRecordId}_${this.props.currentUserName}`;
+    console.log(this.props);
+    const { currentRecord } = this.props;
+    const title = `患者信息展示——${currentRecord.medId}_${currentRecord.name}`;
     return (
       <Modal
         visible={this.props.modalVisible}

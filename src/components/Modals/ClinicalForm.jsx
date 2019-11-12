@@ -1,3 +1,7 @@
+/**
+ * 临床信息采集弹窗
+ */
+
 import React, { Component } from "react";
 import { Form, Input, Button, Modal, Row,Typography, Divider, Select } from "antd";
 
@@ -178,7 +182,8 @@ class ClinicalForm extends Component {
     );
   };
   render() {
-    const title = `临床信息采集——${this.props.currentRecordId}_${this.props.currentUserName}`;
+    console.log(this.props)
+    const title = `临床信息采集——${this.props.currentRecord.medId}_${this.props.currentRecord.name}`;
     return (
       <Modal
         visible={this.props.modalVisible}

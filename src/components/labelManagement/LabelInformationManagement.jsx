@@ -46,7 +46,7 @@ class LabelInformationManagement extends Component {
       currentRecord: undefined,
       tableData: [],
       doctorList: [], // 医生数据
-      diseaseList: [], // 疾病列表
+      diseaseList: [] // 疾病列表
     };
   }
 
@@ -86,7 +86,7 @@ class LabelInformationManagement extends Component {
       newTableDataItem.disease = item.patient.disease;
       newTableDataItem.doctorName = item.patient.doctorName;
       newTableDataItem.testTime = item.task.time;
-      newTableDataItem.testType = item.type === 0 ? "WCST" : "睡眠测试";
+      newTableDataItem.testType = item.type === 0 ? "WCST" : "整晚";
       Object.assign(item, newTableDataItem);
       item.key = index;
       newTableData.push(item);
@@ -102,10 +102,10 @@ class LabelInformationManagement extends Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         let param = {
-          medId: values.patientID,
-          name: values.patientName,
-          doctorId: values.doctorId,
-          disId: values.diseaseType
+          medId: values.patientID ? values.patientID : undefined,
+          name: values.patientName ? values.patientName : undefined,
+          doctorId: values.doctorId ? values.doctorId : undefined,
+          disId: values.diseaseType ? values.diseaseType : undefined
         };
         if (values.date) {
           param.startTime = formatDate(values.date[0]);
@@ -204,6 +204,7 @@ class LabelInformationManagement extends Component {
         <Form.Item>
           {getFieldDecorator("doctorId", {})(
             <Select
+              allowClear={true}
               showSearch
               style={{ width: 200 }}
               placeholder="选择医生"
@@ -224,6 +225,7 @@ class LabelInformationManagement extends Component {
         <Form.Item>
           {getFieldDecorator("diseaseType", {})(
             <Select
+              allowClear={true}
               showSearch
               style={{ width: 200 }}
               placeholder="选择失眠类型"
@@ -359,16 +361,20 @@ class LabelInformationManagement extends Component {
                 <span style={{ marginLeft: "5px" }}>数据存储关联</span>
               </span>
             </Tooltip>
-            <Divider type="vertical" />
-            <Tooltip title="任务测试信息">
-              <span
-                onClick={() => this.handleClick(true, record, "taskInfo")}
-                style={{ cursor: "pointer" }}
-              >
-                <Icon type="apple" />
-                <span style={{ marginLeft: "5px" }}>更新任务测试信息</span>
-              </span>
-            </Tooltip>
+            {record.testType === "WCST" && (
+              <Fragment>
+                <Divider type="vertical" />
+                <Tooltip title="任务测试信息">
+                  <span
+                    onClick={() => this.handleClick(true, record, "taskInfo")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <Icon type="apple" />
+                    <span style={{ marginLeft: "5px" }}>更新任务测试信息</span>
+                  </span>
+                </Tooltip>
+              </Fragment>
+            )}
           </Fragment>
         );
       }
@@ -426,6 +432,7 @@ class LabelInformationManagement extends Component {
             modalVisible={this.state.taskInformationCollectionVisible}
             handleModalVisible={this.handleModalVisible}
             currentRecord={this.state.currentRecord}
+            getTableDate={this.getTableDate}
           />
         )}
       </div>

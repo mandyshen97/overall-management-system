@@ -16,6 +16,7 @@ import PersonalForm from "../Modals/PersonalForm";
 import ClinicalForm from "../Modals/ClinicalForm";
 import MissionInfoForm from "../Modals/MissionInfoForm";
 import PatientsDescriptionForm from "../Modals/PatientsDescriptionForm";
+import UpdatePersonalForm from "../Modals/UpdatePersonalForm";
 import "./user-information-management.less";
 import API from "../../api/api";
 
@@ -30,9 +31,11 @@ class InformationManagement extends Component {
       clinicalModalVisible: false, // 患者临床信息填写
       missionModalVisible: false, // 新建近红外信息
       PatientsDescriptionModalVisible: false, //患者基本信息展示
+      UpdatePersonalFormVisible: false, // 更新患者个人信息弹框是否显示
       edit: false,
       currentRecordId: -1,
       currentUserName: "undefined",
+      currentRecord: undefined,
       tableData: [], // 表格数据
       doctorList: [], // 医生数据
       diseaseList: [] // 疾病列表
@@ -57,7 +60,6 @@ class InformationManagement extends Component {
 
     // 获取疾病列表
     API.getDiseaseList({}).then(res => {
-      console.log(res);
       this.setState({
         diseaseList: res.data
       });
@@ -76,7 +78,10 @@ class InformationManagement extends Component {
       patientTableDataItem.age = getAge(item.birthday);
       patientTableDataItem.disease = item.disease;
       patientTableDataItem.doctorName = item.doctorName;
-      patientTableData.push(patientTableDataItem);
+      // patientTableData.push(patientTableDataItem);
+      Object.assign(item, patientTableDataItem);
+      item.key = index;
+      patientTableData.push(item);
     });
     this.setState({
       tableData: patientTableData
@@ -89,10 +94,10 @@ class InformationManagement extends Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         let param = {
-          medId: values.patientId,
-          name: values.patientName,
-          doctorId: values.doctorId,
-          disId: values.wcstType
+          medId: values.patientId ? values.patientId : undefined,
+          name: values.patientName ? values.patientName : undefined,
+          doctorId: values.doctorId ? values.doctorId : undefined,
+          disId: values.wcstType ? values.wcstType : undefined
         };
         API.getPatientList(param).then(res => {
           this.getTableDate(res);
@@ -114,32 +119,35 @@ class InformationManagement extends Component {
       this.setState({
         edit: true,
         newPatientModalVisible: flag,
-        currentRecordId: record.id,
-        currentUserName: record.name
+        currentRecord: record
+      });
+    }
+    if (msg === "updatePersonalInfo") {
+      this.setState({
+        edit: true,
+        UpdatePersonalFormVisible: flag,
+        currentRecord: record
       });
     }
     if (msg === "clinicalInfo") {
       this.setState({
         edit: true,
         clinicalModalVisible: flag,
-        currentUserName: record.name,
-        currentRecordId: record.id
+        currentRecord: record
       });
     }
     if (msg === "missionBasicInfo") {
       this.setState({
         edit: true,
         missionModalVisible: flag,
-        currentUserName: record.name,
-        currentRecordId: record.id
+        currentRecord: record
       });
     }
     if (msg === "patientsDescription") {
       this.setState({
         edit: true,
         PatientsDescriptionModalVisible: flag,
-        currentUserName: record.name,
-        currentRecordId: record.id
+        currentRecord: record
       });
     }
   };
@@ -172,6 +180,7 @@ class InformationManagement extends Component {
         <Form.Item>
           {getFieldDecorator("doctorId", {})(
             <Select
+              allowClear={true}
               showSearch
               style={{ width: 200 }}
               placeholder="选择医生"
@@ -192,6 +201,7 @@ class InformationManagement extends Component {
         <Form.Item>
           {getFieldDecorator("wcstType", {})(
             <Select
+              allowClear={true}
               showSearch
               style={{ width: 200 }}
               placeholder="选择失眠类型"
@@ -235,6 +245,12 @@ class InformationManagement extends Component {
       this.setState({
         edit: false,
         newPatientModalVisible: flag
+      });
+    }
+    if (msg === "updatePersonalInfo") {
+      this.setState({
+        edit: false,
+        UpdatePersonalFormVisible: flag
       });
     }
     if (msg === "clinicalInfo") {
@@ -344,7 +360,9 @@ class InformationManagement extends Component {
           <Fragment>
             <Tooltip title="个人信息采集">
               <span
-                onClick={() => this.handleClick(true, record, "personalInfo")}
+                onClick={() =>
+                  this.handleClick(true, record, "updatePersonalInfo")
+                }
               >
                 <Icon type="edit" style={{ justifyContent: "center" }} />
                 <span
@@ -354,7 +372,7 @@ class InformationManagement extends Component {
                     lineHeight: "1"
                   }}
                 >
-                  个人信息采集
+                  更新个人信息
                 </span>
               </span>
             </Tooltip>
@@ -438,13 +456,22 @@ class InformationManagement extends Component {
             handleModalVisible={this.handleModalVisible}
           />
         )}
+        {/* 更新个人信息 */}
+        {this.state.UpdatePersonalFormVisible && (
+          <UpdatePersonalForm
+            modalVisible={this.state.UpdatePersonalFormVisible}
+            handleModalVisible={this.handleModalVisible}
+            currentRecord={this.state.currentRecord}
+            doctorList={this.state.doctorList}
+            getTableDate={this.getTableDate}
+          />
+        )}
         {/* 临床信息采集弹框 */}
         {this.state.clinicalModalVisible && (
           <ClinicalForm
             modalVisible={this.state.clinicalModalVisible}
             handleModalVisible={this.handleModalVisible}
-            currentRecordId={this.state.currentRecordId}
-            currentUserName={this.state.currentUserName}
+            currentRecord={this.state.currentRecord}
           />
         )}
         {/* 新建近红外采集信息 */}
@@ -452,8 +479,7 @@ class InformationManagement extends Component {
           <MissionInfoForm
             modalVisible={this.state.missionModalVisible}
             handleModalVisible={this.handleModalVisible}
-            currentRecordId={this.state.currentRecordId}
-            currentUserName={this.state.currentUserName}
+            currentRecord={this.state.currentRecord}
           />
         )}
         {/* 患者信息展示弹框 */}
@@ -461,8 +487,7 @@ class InformationManagement extends Component {
           <PatientsDescriptionForm
             modalVisible={this.state.PatientsDescriptionModalVisible}
             handleModalVisible={this.handleModalVisible}
-            currentRecordId={this.state.currentRecordId}
-            currentUserName={this.state.currentUserName}
+            currentRecord={this.state.currentRecord}
           />
         )}
       </div>

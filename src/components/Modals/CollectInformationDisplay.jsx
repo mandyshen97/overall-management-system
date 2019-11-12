@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { Form, Modal, Divider, Descriptions, Button } from "antd";
 
 class CollectInformationDisplay extends Component {
@@ -70,18 +70,21 @@ class CollectInformationDisplay extends Component {
           </Descriptions.Item>
         </Descriptions>
         <Divider />
-        {}
-        <Descriptions title="任务测试得分">
-          {Object.keys(WCSTTask).map((item, index) => {
-            let k = WCSTTask[item];
-            return (
-              <Descriptions.Item key={index} label={item}>
-                {task[k]}
-              </Descriptions.Item>
-            );
-          })}
-        </Descriptions>
-        <Divider />
+        {currentRecord.type === 0 && (
+          <Fragment>
+            <Descriptions title="任务测试得分">
+              {Object.keys(WCSTTask).map((item, index) => {
+                let k = WCSTTask[item];
+                return (
+                  <Descriptions.Item key={index} label={item}>
+                    {task[k]}
+                  </Descriptions.Item>
+                );
+              })}
+            </Descriptions>
+            <Divider />
+          </Fragment>
+        )}
         <Descriptions title="临床信息">
           <Descriptions.Item label="症状持续时间">
             {patientInfo.symptomTime}
@@ -110,6 +113,7 @@ class CollectInformationDisplay extends Component {
   }
 
   render() {
+    console.log(this.props);
     const { currentRecord } = this.props;
     const title = `采集信息展示——${currentRecord.medId}_${currentRecord.name}`;
     return (
