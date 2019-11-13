@@ -1,6 +1,10 @@
+/**
+ * 任务基本信息填写弹框
+ */
 import React, { Component } from "react";
 import moment from "moment";
 import { Link } from "react-router-dom";
+import API from "../../api/api";
 import {
   Form,
   Modal,
@@ -10,7 +14,8 @@ import {
   Divider,
   DatePicker,
   TimePicker,
-  Button
+  Button,
+  Message
 } from "antd";
 const { Option } = Select;
 const { Title } = Typography;
@@ -33,8 +38,31 @@ class MissionInfoForm extends Component {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (err) return;
       if (!err) {
-        // 调用哪个接口？？
-        // todo
+        console.log(values); // {testTime: undefined, testType: undefined, medicine: undefined, timeAfterMed: undefined, otherInter: undefined}
+        const { currentRecord } = this.props;
+        console.log(currentRecord);
+        //age: 25
+        //birthday: "1994-10-11T00:00:00.000+0800"
+        //chiCom: "失眠 嗜睡"
+        //disease: "单纯性失眠"
+        //doctorName: "毛主任"
+        //drugHis: "无"
+        //gender: 1
+        //height: 171
+        //id: 1
+        //key: 0
+        //medId: "000001"
+        //name: "邵洋"
+        //weight: 64
+        let param = {
+          patientId: currentRecord.medId,
+          time: values.testTime,
+          intType: values.otherInter,
+        };
+        API.addWCST(param).then(res => {
+          console.log(res)
+          Message.success('添加任务成功！')
+        });
       }
       this.props.handleModalVisible(false, "missionBasicInfo");
     });
@@ -107,8 +135,8 @@ class MissionInfoForm extends Component {
                   .indexOf(input.toLowerCase()) >= 0
               }
             >
-              <Option value="type1">WCST</Option>
-              <Option value="type2">测量整晚</Option>
+              <Option value="0">WCST</Option>
+              <Option value="1">整测量晚</Option>
             </Select>
           )}
         </Form.Item>
@@ -150,9 +178,9 @@ class MissionInfoForm extends Component {
               placeholder="选择其他干预方式"
               initislValue={["SSRI", "SNRI"]}
             >
-              <Option value="inter1">rTMs</Option>
-              <Option value="inter2">CBT-I</Option>
-              <Option value="inter0">无</Option>
+              <Option value="0">rTMs</Option>
+              <Option value="1">CBT-I</Option>
+              <Option value="2">无</Option>
             </Select>
           )}
         </Form.Item>
@@ -160,7 +188,7 @@ class MissionInfoForm extends Component {
           <Button type="primary" htmlType="submit">
             添加任务
           </Button>
-          <Link to="/informationManagement">
+          <Link to="/labelInformationManagement">
             <Button htmlType="submit" style={{ marginLeft: "20px" }}>
               查看任务
             </Button>
@@ -171,15 +199,27 @@ class MissionInfoForm extends Component {
   };
 
   render() {
-    const title = `任务基本信息填写——${this.props.currentRecordId}_${this.props.currentUserName}`;
+    const { currentRecord, modalVisible, handleModalVisible } = this.props;
+    const title = `任务基本信息填写——${currentRecord.medId}_${currentRecord.name}`;
     return (
       <Modal
         title={title}
-        visible={this.props.modalVisible}
+        visible={modalVisible}
         onOk={this.handleMissionSubmit}
         onCancel={() => {
-          this.props.handleModalVisible(false, "missionBasicInfo");
+          handleModalVisible(false, "missionBasicInfo");
         }}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => handleModalVisible(false, "missionBasicInfo")}
+          >
+            取消
+          </Button>,
+          <Button key="ok" type="primary" onClick={this.handleMissionSubmit}>
+            确定
+          </Button>
+        ]}
       >
         {this.renderForm()}
       </Modal>

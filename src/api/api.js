@@ -40,7 +40,7 @@ const UrlMap = [
   {
     description: "添加患者wcst任务",
     method: "addWCST",
-    url: "/nir/wcst/add",
+    url: "/nir/som/patient/wcst/add",
     type: "POST"
   },
   {

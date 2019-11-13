@@ -116,6 +116,9 @@ class Header extends Component {
         <span className='page-title'>{title}</span>
         <div className="header-right">
           <span className='currentTime'>{currentTime}</span>
+          <span style={{marginRight:'10px'}}>
+            <img src={require('./banana/lei.png')} alt="天气"/>
+          </span>
           <Icon type="global" />
           <Icon type="question-circle" onClick={this.showDialog} />
           <span className="logout" onClick={this.logout}>退出</span>

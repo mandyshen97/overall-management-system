@@ -454,6 +454,9 @@ class InformationManagement extends Component {
           <PersonalForm
             modalVisible={this.state.newPatientModalVisible}
             handleModalVisible={this.handleModalVisible}
+            diseaseList={this.state.diseaseList}
+            doctorList={this.state.doctorList}
+            getTableDate={this.getTableDate}
           />
         )}
         {/* 更新个人信息 */}

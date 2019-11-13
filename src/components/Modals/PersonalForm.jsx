@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-import { Modal, Form, Input, Select, Button, Message } from "antd";
+import { Modal, Form, Input, Select, Button, Message, DatePicker } from "antd";
 import API from "../../api/api";
+import { formatDate } from "../../utils/dateUtils";
 
 const { Option } = Select;
 const ADHDItem = [
@@ -13,66 +14,48 @@ const ADHDItem = [
 class PersonalForm extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      personInfo: {
-        age: "",
-        gender: undefined,
-        weight: "",
-        height: "",
-        name: "",
-        adhdType: undefined,
-        doctorId: ""
-      }
-    };
+    this.state = {};
   }
 
-  componentDidMount() {
-    const { edit, currentRecordId} = this.props;
-    // 从后台获取数据
-    if(edit){
-      // API.
-      // todo
-    }
-  }
-
-  // 提交个人信息到数据库
+  // 提交新建个人信息到数据库
   handlePersonInfoSubmit = e => {
-    //阻止表单提交默认事件
     e.preventDefault();
     //验证
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (err) return;
       if (!err) {
-        // 验证成功，则用表单里的数据更改state
-        this.setState(
-          {
-            personInfo: { ...values }
-          },
-          () => {
-            debugger
-            console.log(this.state)
-            this.props.handleModalVisible(false, "personalInfo");
-            // API.patientRegister({
-            //   ...this.state.personInfo
-            // }).then(res => {
-            //   console.log(res);
-            //   Message.success("新建患者个人信息成功");
-               // todo
-            // });
-          }
-        );
-        const { handleModalVisible, edit, currentRecordId } = this.props;
+        console.log(values);
+        console.log(formatDate(values.birthday));
+
+        let param = {
+          medId: values.medId,
+          doctorId: values.docId,
+          name: values.name,
+          gender: values.gender,
+          birthday:
+            values.birthday === undefined
+              ? undefined
+              : formatDate(values.birthday),
+          weight: values.weight,
+          height: values.height,
+          disease: values.disType,
+          chiCom: values.chiCom,
+          drugHis: values.drugHis
+        };
+        API.patientRegister(param).then(res => {
+          Message.success('新建患者个人信息成功！')
+          API.getPatientList({}).then(res => {
+            this.props.getTableDate(res);
+          });
+        });
+        this.props.handleModalVisible(false, "personalInfo");
       }
     });
-
-    //todo
   };
 
   // 个人信息采集的表单
   renderPersonalInfoForm = () => {
     const { getFieldDecorator } = this.props.form;
-    const { personInfo } = this.state;
-
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -100,61 +83,91 @@ class PersonalForm extends Component {
       <Form {...formItemLayout} onSubmit={this.handlePersonInfoSubmit}>
         <Form.Item label="患者姓名">
           {getFieldDecorator("name", {
-            initialValue: personInfo.name,
             rules: [
               {
                 required: true,
-                message: "请选择一个用户"
+                message: "请填写一个用户姓名"
               }
             ]
-          })(<Input />)}
+          })(<Input placeholder="请填写患者姓名" />)}
+        </Form.Item>
+        <Form.Item label="患者唯一编号">
+          {getFieldDecorator("medId", {
+            rules: [
+              {
+                required: true,
+                message: "请输入患者唯一编号"
+              }
+            ]
+          })(<Input placeholder="请输入患者唯一编号" />)}
         </Form.Item>
         <Form.Item label="患者性别">
-          {getFieldDecorator("gender", {
-            initialValue: personInfo.gender
-          })(
-            <Select>
+          {getFieldDecorator("gender", {})(
+            <Select placeholder="请选择患者性别">
               <Option value={1}>男</Option>
               <Option value={0}>女</Option>
             </Select>
           )}
         </Form.Item>
-        <Form.Item label="患者年龄">
-          {getFieldDecorator("age", {
-            initialValue: personInfo.age
-          })(<Input />)}
+        <Form.Item label="患者出生日期">
+          {getFieldDecorator("birthday", {})(
+            <DatePicker placeholder="请选择患者生日" />
+          )}
         </Form.Item>
         <Form.Item label="患者体重(kg)">
-          {getFieldDecorator("weight", {
-            initialValue: personInfo.weight
-          })(<Input />)}
+          {getFieldDecorator("weight", {})(
+            <Input placeholder="请填写患者体重" />
+          )}
         </Form.Item>
         <Form.Item label="患者身高(cm)">
-          {getFieldDecorator("height", {
-            initialValue: personInfo.height
-          })(<Input />)}
+          {getFieldDecorator("height", {})(
+            <Input placeholder="请填写患者身高" />
+          )}
         </Form.Item>
         <Form.Item label="患者患病类型">
-          {getFieldDecorator("adhdType", {
-            initialValue: personInfo.adhdType
-          })(
+          {getFieldDecorator("disType", {})(
             <Select placeholder="请选择患者患病类型">
-              {ADHDItem.map((item, index) => (
-                <Option key={index} value={item.value}>
-                  {item.label}
+              {this.props.diseaseList.map((item, index) => (
+                <Option key={index} value={item.id}>
+                  {item.name}
                 </Option>
               ))}
             </Select>
           )}
         </Form.Item>
+        <Form.Item label="主诉">
+          {getFieldDecorator("chiCom", {})(
+            <Input placeholder="请填写患者主诉" />
+          )}
+        </Form.Item>
+        <Form.Item label="用药史">
+          {getFieldDecorator("drugHis", {})(
+            <Input placeholder="请填写患者用药史" />
+          )}
+        </Form.Item>
         <Form.Item label="主治医生">
-          {getFieldDecorator("doctorId", {
-            initialValue: personInfo.doctorId
-          })(<Input />)}
+          {getFieldDecorator("doctorId", {})(
+            <Select
+              allowClear={true}
+              showSearch
+              placeholder="请选择主治医生"
+              filterOption={(input, option) =>
+                option.props.children
+                  .toLowerCase()
+                  .indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {this.props.doctorList.map((item, index) => (
+                <Option value={item.id} key={index}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          )}
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
           <Button type="primary" htmlType="submit">
-            更新采集个人信息
+            新建患者个人信息
           </Button>
         </Form.Item>
       </Form>
@@ -165,7 +178,7 @@ class PersonalForm extends Component {
     return (
       <Modal
         visible={this.props.modalVisible}
-        title="个人信息采集"
+        title="新建患者个人信息"
         width="60%"
         onCancel={() => this.props.handleModalVisible(false, "personalInfo")}
         footer={[
@@ -175,7 +188,11 @@ class PersonalForm extends Component {
           >
             取消
           </Button>,
-          <Button key="submit" type="primary" onClick={this.handlePersonInfoSubmit}>
+          <Button
+            key="submit"
+            type="primary"
+            onClick={this.handlePersonInfoSubmit}
+          >
             确定
           </Button>
         ]}
